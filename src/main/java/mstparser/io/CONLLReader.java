@@ -67,12 +67,14 @@ public class CONLLReader extends DependencyReader {
     String[][] feats = new String[length + 1][];
     String[] deprels = new String[length + 1];
     int[] heads = new int[length + 1];
+    String[] ccgtags = new String[length + 1];
     double[] confscores = confScores ? new double[length + 1] : null;
 
     forms[0] = "<root>";
     lemmas[0] = "<root-LEMMA>";
     cpos[0] = "<root-CPOS>";
     pos[0] = "<root-POS>";
+    ccgtags[0] = "<root-CCG>";
     deprels[0] = "<no-type>";
     heads[0] = -1;
     if (confScores)
@@ -87,6 +89,15 @@ public class CONLLReader extends DependencyReader {
       feats[i + 1] = info[5].split("\\|");
       deprels[i + 1] = labeled ? info[7] : "<no-type>";
       heads[i + 1] = Integer.parseInt(info[6]);
+
+      int endIndex = info[9].indexOf("|");
+      int startIndex = info[9].indexOf("=");
+      if (endIndex == -1) {
+          endIndex = info[9].length();
+          startIndex = 0;
+      }
+      ccgtags[i + 1] = info[9].substring(startIndex, endIndex);
+
       if (confScores)
         confscores[i + 1] = Double.parseDouble(info[10]);
     }
@@ -121,7 +132,7 @@ public class CONLLReader extends DependencyReader {
     // End of discourse stuff.
 
     return new DependencyInstance(forms, lemmas, cpos, pos, feats, deprels, heads, rfeatsList,
-            confscores);
+            confscores, ccgtags);
 
   }
 

@@ -234,6 +234,7 @@ public class DependencyPipe {
     String[] forms = instance.forms;
     String[] pos = instance.postags;
     String[] posA = instance.cpostags;
+    String[] ccgTags = instance.ccgtags;
 
     String att = attR ? "RA" : "LA";
 
@@ -249,8 +250,8 @@ public class DependencyPipe {
 
     String attDist = "&" + att + "&" + distBool;
 
-    addLinearFeatures("POS", pos, small, large, attDist, fv);
     addLinearFeatures("CPOS", posA, small, large, attDist, fv);
+    addLinearFeatures("CCG", ccgTags, small, large, attDist, fv);
 
     // ////////////////////////////////////////////////////////////////////
 
@@ -261,19 +262,21 @@ public class DependencyPipe {
       childIndex = small;
     }
 
-    addTwoObsFeatures("HC", forms[headIndex], pos[headIndex], forms[childIndex], pos[childIndex],
+
+    addTwoObsFeatures("HC1", forms[headIndex], ccgTags[headIndex], forms[childIndex], ccgTags[childIndex],
             attDist, fv);
 
     if (isCONLL) {
 
-      addTwoObsFeatures("HCA", forms[headIndex], posA[headIndex], forms[childIndex],
-              posA[childIndex], attDist, fv);
+        addTwoObsFeatures("HCA", forms[headIndex], posA[headIndex], forms[childIndex],
+                posA[childIndex], attDist, fv);
 
-      addTwoObsFeatures("HCC", instance.lemmas[headIndex], pos[headIndex],
-              instance.lemmas[childIndex], pos[childIndex], attDist, fv);
+        addTwoObsFeatures("HCD", instance.lemmas[headIndex], posA[headIndex],
+                instance.lemmas[childIndex], posA[childIndex], attDist, fv);
 
-      addTwoObsFeatures("HCD", instance.lemmas[headIndex], posA[headIndex],
-              instance.lemmas[childIndex], posA[childIndex], attDist, fv);
+
+      addTwoObsFeatures("HCE", instance.lemmas[headIndex], ccgTags[headIndex],
+              instance.lemmas[childIndex], ccgTags[childIndex], attDist, fv);
 
       if (options.discourseMode) {
         // Note: The features invoked here are designed for

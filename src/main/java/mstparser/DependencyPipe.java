@@ -249,7 +249,6 @@ public class DependencyPipe {
 
     String attDist = "&" + att + "&" + distBool;
 
-    addLinearFeatures("POS", pos, small, large, attDist, fv);
     addLinearFeatures("CPOS", posA, small, large, attDist, fv);
 
     // ////////////////////////////////////////////////////////////////////
@@ -261,16 +260,10 @@ public class DependencyPipe {
       childIndex = small;
     }
 
-    addTwoObsFeatures("HC", forms[headIndex], pos[headIndex], forms[childIndex], pos[childIndex],
-            attDist, fv);
-
     if (isCONLL) {
 
       addTwoObsFeatures("HCA", forms[headIndex], posA[headIndex], forms[childIndex],
               posA[childIndex], attDist, fv);
-
-      addTwoObsFeatures("HCC", instance.lemmas[headIndex], pos[headIndex],
-              instance.lemmas[childIndex], pos[childIndex], attDist, fv);
 
       addTwoObsFeatures("HCD", instance.lemmas[headIndex], posA[headIndex],
               instance.lemmas[childIndex], posA[childIndex], attDist, fv);

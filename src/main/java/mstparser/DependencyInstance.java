@@ -46,6 +46,9 @@ public class DependencyInstance implements Serializable {
   // Confidence scores per edge
   public double[] confidenceScores;
 
+  // CCG tags
+  public String[] ccgtags;
+
   public DependencyInstance() {
   }
 
@@ -64,8 +67,19 @@ public class DependencyInstance implements Serializable {
     this.postags = postags;
   }
 
+  public DependencyInstance(String[] forms, String[] postags, FeatureVector fv, String[] ccgtags) {
+    this(forms, fv);
+    this.postags = postags;
+    this.ccgtags = ccgtags;
+  }
+
   public DependencyInstance(String[] forms, String[] postags, String[] labs, FeatureVector fv) {
     this(forms, postags, fv);
+    this.deprels = labs;
+  }
+
+  public DependencyInstance(String[] forms, String[] postags, String[] labs, FeatureVector fv, String[] ccgtags) {
+    this(forms, postags, fv, ccgtags);
     this.deprels = labs;
   }
 
@@ -76,9 +90,23 @@ public class DependencyInstance implements Serializable {
     this.heads = heads;
   }
 
+  public DependencyInstance(String[] forms, String[] postags, String[] labs, int[] heads, String[] ccgtags) {
+    this.forms = forms;
+    this.postags = postags;
+    this.deprels = labs;
+    this.heads = heads;
+    this.ccgtags = ccgtags;
+  }
+
   public DependencyInstance(String[] forms, String[] postags, String[] labs, int[] heads,
           double[] confidenceScores) {
     this(forms, postags, labs, heads);
+    this.confidenceScores = confidenceScores;
+  }
+
+  public DependencyInstance(String[] forms, String[] postags, String[] labs, int[] heads,
+          double[] confidenceScores, String[] ccgtags) {
+    this(forms, postags, labs, heads, ccgtags);
     this.confidenceScores = confidenceScores;
   }
 
@@ -91,9 +119,25 @@ public class DependencyInstance implements Serializable {
   }
 
   public DependencyInstance(String[] forms, String[] lemmas, String[] cpostags, String[] postags,
+          String[][] feats, String[] labs, int[] heads, String[] ccgtags) {
+    this(forms, postags, labs, heads, ccgtags);
+    this.lemmas = lemmas;
+    this.cpostags = cpostags;
+    this.feats = feats;
+  }
+
+  public DependencyInstance(String[] forms, String[] lemmas, String[] cpostags, String[] postags,
           String[][] feats, String[] labs, int[] heads, RelationalFeature[] relFeats,
           double[] confidenceScores) {
     this(forms, lemmas, cpostags, postags, feats, labs, heads);
+    this.relFeats = relFeats;
+    this.confidenceScores = confidenceScores;
+  }
+
+  public DependencyInstance(String[] forms, String[] lemmas, String[] cpostags, String[] postags,
+          String[][] feats, String[] labs, int[] heads, RelationalFeature[] relFeats,
+          double[] confidenceScores, String[] ccgtags) {
+    this(forms, lemmas, cpostags, postags, feats, labs, heads, ccgtags);
     this.relFeats = relFeats;
     this.confidenceScores = confidenceScores;
   }

@@ -16,11 +16,11 @@ import java.io.File;
 
 /**
  * Hold all the options for the parser so they can be passed around easily.
- * 
+ *
  * <p>
  * Created: Sat Nov 10 15:25:10 2001
  * </p>
- * 
+ *
  * @author Jason Baldridge
  * @version $Id: CONLLReader.java 103 2007-01-21 20:26:39Z jasonbaldridge $
  * @see mstparser.io.DependencyReader
@@ -70,6 +70,10 @@ public final class ParserOptions {
   public boolean discourseMode = false;
 
   public String confidenceEstimator = null;
+
+  public String ccgTagType = "missing";
+
+  public String posTagType = "all";
 
   public ParserOptions(String[] args) {
 
@@ -133,6 +137,12 @@ public final class ParserOptions {
       if (pair[0].equals("rankEdgesByConfidence")) {
         rankEdgesByConfidence = true;
       }
+      if (pair[0].equals("ccg-tag-type")) {
+        ccgTagType = pair[1];
+      }
+      if (pair[0].equals("pos-tag-type")) {
+        posTagType = pair[1];
+      }
     }
 
     try {
@@ -191,6 +201,10 @@ public final class ParserOptions {
     sb.append("relational-features: " + useRelationalFeatures);
     sb.append(" | ");
     sb.append("discourse-mode: " + discourseMode);
+    sb.append(" | ");
+    sb.append("ccg-tag-type: " + ccgTagType);
+    sb.append(" | ");
+    sb.append("pos-tag-type: " + posTagType);
     sb.append("]\n");
     return sb.toString();
   }

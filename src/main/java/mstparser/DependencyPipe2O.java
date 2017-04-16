@@ -89,7 +89,7 @@ public class DependencyPipe2O extends DependencyPipe {
           boolean isST, FeatureVector fv) {
 
     String[] forms = instance.forms;
-    String[] pos = instance.postags;
+    String[] pos = instance.cpostags;
 
     // ch1 is always the closes to par
     String dir = ch1 > ch2 ? "RA" : "LA";
@@ -132,7 +132,7 @@ public class DependencyPipe2O extends DependencyPipe {
   private final void addTripFeatures(DependencyInstance instance, int par, int ch1, int ch2,
           FeatureVector fv) {
 
-    String[] pos = instance.postags;
+    String[] pos = instance.cpostags;
 
     // ch1 is always the closest to par
     String dir = par > ch2 ? "RA" : "LA";
@@ -149,7 +149,7 @@ public class DependencyPipe2O extends DependencyPipe {
 
   /**
    * Write out the second order features.
-   * 
+   *
    **/
   @Override
   protected void writeExtendedFeatures(DependencyInstance instance, ObjectOutputStream out)

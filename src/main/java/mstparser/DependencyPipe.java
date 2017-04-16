@@ -75,15 +75,8 @@ public class DependencyPipe {
 
     instance.setFeatureVector(createFeatureVector(instance));
 
-    String[] labs = instance.deprels;
-    int[] heads = instance.heads;
 
-    StringBuffer spans = new StringBuffer(heads.length * 5);
-    for (int i = 1; i < heads.length; i++) {
-      spans.append(heads[i]).append("|").append(i).append(":")
-              .append(typeAlphabet.lookupIndex(labs[i])).append(" ");
-    }
-    instance.actParseTree = spans.substring(0, spans.length() - 1);
+    instance.actParseTree = null;
 
     return instance;
   }
@@ -234,6 +227,7 @@ public class DependencyPipe {
     String[] forms = instance.forms;
     String[] pos = instance.postags;
     String[] posA = instance.cpostags;
+    String[] ccgTags = instance.ccgtags;
 
     String att = attR ? "RA" : "LA";
 
@@ -251,6 +245,7 @@ public class DependencyPipe {
 
     addLinearFeatures("POS", pos, small, large, attDist, fv);
     addLinearFeatures("CPOS", posA, small, large, attDist, fv);
+    addLinearFeatures("CCG", ccgTags, small, large, attDist, fv);
 
     // ////////////////////////////////////////////////////////////////////
 
@@ -264,16 +259,24 @@ public class DependencyPipe {
     addTwoObsFeatures("HC", forms[headIndex], pos[headIndex], forms[childIndex], pos[childIndex],
             attDist, fv);
 
+
+    addTwoObsFeatures("HC1", forms[headIndex], ccgTags[headIndex], forms[childIndex], ccgTags[childIndex],
+            attDist, fv);
+
     if (isCONLL) {
 
-      addTwoObsFeatures("HCA", forms[headIndex], posA[headIndex], forms[childIndex],
-              posA[childIndex], attDist, fv);
+        addTwoObsFeatures("HCA", forms[headIndex], posA[headIndex], forms[childIndex],
+                posA[childIndex], attDist, fv);
 
-      addTwoObsFeatures("HCC", instance.lemmas[headIndex], pos[headIndex],
-              instance.lemmas[childIndex], pos[childIndex], attDist, fv);
+        addTwoObsFeatures("HCC", instance.lemmas[headIndex], pos[headIndex],
+                instance.lemmas[childIndex], pos[childIndex], attDist, fv);
 
-      addTwoObsFeatures("HCD", instance.lemmas[headIndex], posA[headIndex],
-              instance.lemmas[childIndex], posA[childIndex], attDist, fv);
+        addTwoObsFeatures("HCD", instance.lemmas[headIndex], posA[headIndex],
+                instance.lemmas[childIndex], posA[childIndex], attDist, fv);
+
+
+      addTwoObsFeatures("HCE", instance.lemmas[headIndex], ccgTags[headIndex],
+              instance.lemmas[childIndex], ccgTags[childIndex], attDist, fv);
 
       if (options.discourseMode) {
         // Note: The features invoked here are designed for
@@ -285,23 +288,7 @@ public class DependencyPipe {
         addDiscourseFeatures(instance, small, large, headIndex, childIndex, attDist, fv);
 
       } else {
-        // Add in features from the feature lists. It assumes
-        // the feature lists can have different lengths for
-        // each item. For example, nouns might have a
-        // different number of morphological features than
-        // verbs.
 
-        for (int i = 0; i < instance.feats[headIndex].length; i++) {
-          for (int j = 0; j < instance.feats[childIndex].length; j++) {
-            addTwoObsFeatures("FF" + i + "*" + j, instance.forms[headIndex],
-                    instance.feats[headIndex][i], instance.forms[childIndex],
-                    instance.feats[childIndex][j], attDist, fv);
-
-            addTwoObsFeatures("LF" + i + "*" + j, instance.lemmas[headIndex],
-                    instance.feats[headIndex][i], instance.lemmas[childIndex],
-                    instance.feats[childIndex][j], attDist, fv);
-          }
-        }
       }
 
     } else {

@@ -47,7 +47,10 @@ public class CONLLReader extends DependencyReader {
     String line = inputReader.readLine();
     while (line != null && !line.equals("") && !line.startsWith("*")) {
       if (!line.startsWith("#")) {
-        lineList.add(line.split("\t"));
+        String[] lineAll = line.split("\t");
+        if (!lineAll[0].matches("\\d+-\\d+") || lineAll[1].equals("NUM")) {
+          lineList.add(lineAll);
+        }
       }
       line = inputReader.readLine();
       // System.out.println("## "+line);
@@ -67,12 +70,16 @@ public class CONLLReader extends DependencyReader {
     String[][] feats = new String[length + 1][];
     String[] deprels = new String[length + 1];
     int[] heads = new int[length + 1];
+    String[] ccgtags = new String[length + 1];
     double[] confscores = confScores ? new double[length + 1] : null;
+
+    int sh = 1;
 
     forms[0] = "<root>";
     lemmas[0] = "<root-LEMMA>";
     cpos[0] = "<root-CPOS>";
     pos[0] = "<root-POS>";
+    ccgtags[0] = "<root-CCG>";
     deprels[0] = "<no-type>";
     heads[0] = -1;
     if (confScores)
@@ -80,32 +87,60 @@ public class CONLLReader extends DependencyReader {
 
     for (int i = 0; i < length; i++) {
       String[] info = lineList.get(i);
-      forms[i + 1] = normalize(info[1]);
-      lemmas[i + 1] = normalize(info[2]);
-      cpos[i + 1] = info[3];
-      pos[i + 1] = info[4];
-      feats[i + 1] = info[5].split("\\|");
-      deprels[i + 1] = labeled ? info[7] : "<no-type>";
-      heads[i + 1] = Integer.parseInt(info[6]);
-      if (confScores)
-        confscores[i + 1] = Double.parseDouble(info[10]);
+      if(info.length==4) {
+          sh = 0;
+          forms[i + 1] = normalize(info[0]);
+          cpos[i + 1] = info[1];
+          pos[i + 1] = info[2];
+
+          int endIndex = info[3].indexOf("|");
+          int startIndex = info[3].indexOf("=");
+          if (endIndex == -1) {
+              endIndex = info[3].length();
+              startIndex = 0;
+          }
+          ccgtags[i + 1] = info[3].substring(startIndex, endIndex);
+      }
+      else {
+          sh = 1;
+          forms[i + 1] = normalize(info[1]);
+          lemmas[i + 1] = normalize(info[2]);
+          cpos[i + 1] = info[3];
+          pos[i + 1] = info[4];
+          feats[i + 1] = info[5].split("\\|");
+          deprels[i + 1] = labeled ? info[7] : "<no-type>";
+          heads[i + 1] = Integer.parseInt(info[6]);
+
+          int endIndex = info[9].indexOf("|");
+          int startIndex = info[9].indexOf("=");
+          if (endIndex == -1) {
+              endIndex = info[9].length();
+              startIndex = 0;
+          }
+          ccgtags[i + 1] = info[9].substring(startIndex, endIndex);
+
+          if (confScores)
+            confscores[i + 1] = Double.parseDouble(info[10]);
+      }
     }
 
-    feats[0] = new String[feats[1].length];
-    for (int i = 0; i < feats[1].length; i++)
-      feats[0][i] = "<root-feat>" + i;
+    if(sh==1) {
+        feats[0] = new String[feats[1].length];
+        for (int i = 0; i < feats[1].length; i++)
+          feats[0][i] = "<root-feat>" + i;
 
-    // The following stuff is for discourse and can be safely
-    // ignored if you are doing sentential parsing. (In theory it
-    // could be useful for sentential parsing.)
-    if (discourseMode) {
-      String[][] extended_feats = new String[feats[0].length][length + 1];
-      for (int i = 0; i < extended_feats.length; i++) {
-        for (int j = 0; j < length + 1; j++)
-          extended_feats[i][j] = feats[j][i];
-      }
+        // The following stuff is for discourse and can be safely
+        // ignored if you are doing sentential parsing. (In theory it
+        // could be useful for sentential parsing.)
+        if (discourseMode) {
+          String[][] extended_feats = new String[feats[0].length][length + 1];
+          for (int i = 0; i < extended_feats.length; i++) {
+            for (int j = 0; j < length + 1; j++)
+              extended_feats[i][j] = feats[j][i];
+          }
 
-      feats = extended_feats;
+          feats = extended_feats;
+        }
     }
 
     ArrayList<RelationalFeature> rfeats = new ArrayList<RelationalFeature>();
@@ -121,7 +156,7 @@ public class CONLLReader extends DependencyReader {
     // End of discourse stuff.
 
     return new DependencyInstance(forms, lemmas, cpos, pos, feats, deprels, heads, rfeatsList,
-            confscores);
+            confscores, ccgtags);
 
   }
 

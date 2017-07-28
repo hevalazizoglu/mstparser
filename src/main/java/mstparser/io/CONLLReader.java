@@ -46,8 +46,13 @@ public class CONLLReader extends DependencyReader {
 
     String line = inputReader.readLine();
     while (line != null && !line.equals("") && !line.startsWith("*")) {
+      String[] splits = line.split("\t");
       if (!line.startsWith("#")) {
-        lineList.add(line.split("\t"));
+        if (!(!splits[0].matches("\\d+-\\d+") || splits[1].equals("NUM"))) {
+            continue;
+        } else {
+            lineList.add(splits);
+        }
       }
       line = inputReader.readLine();
       // System.out.println("## "+line);
@@ -82,13 +87,21 @@ public class CONLLReader extends DependencyReader {
 
     for (int i = 0; i < length; i++) {
       String[] info = lineList.get(i);
+      for (int j=0; j<info.length; j++) {
+        System.out.println(info[j]);
+        }
       forms[i + 1] = normalize(info[1]);
       lemmas[i + 1] = normalize(info[2]);
       cpos[i + 1] = info[3];
       pos[i + 1] = info[4];
       feats[i + 1] = info[5].split("\\|");
       deprels[i + 1] = labeled ? info[7] : "<no-type>";
-      heads[i + 1] = Integer.parseInt(info[6]);
+      try {
+          heads[i + 1] = Integer.parseInt(info[6]);
+      } catch(Exception e) {
+          heads[i + 1] = 0;
+      }
+
 
       int endIndex = info[9].indexOf("|");
       int startIndex = info[9].indexOf("=");
